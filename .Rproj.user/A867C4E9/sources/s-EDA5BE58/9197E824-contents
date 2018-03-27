@@ -1,0 +1,21 @@
+rm(list=ls())
+
+# install.packages('ggmap')
+library(ggmap)
+
+zoo_map <- get_map('500 S Greenlawn Ave, South Bend, IN 46615', zoom = 15)
+
+ggmap(zoo_map)
+
+zoo = '500 S Greenlawn Ave, South Bend, IN 46615'
+ohare = '10000 W O\'Hare Ave, Chicago, IL 60666'
+
+dist = mapdist(from=zoo, 
+        to=ohare, 
+        mode = c("driving", "walking", "bicycling"),
+        output='all')
+
+dist$from = 'zoo'
+dist$to = 'ohare'
+
+dist$`500 S Greenlawn Ave, South Bend, IN 46615`

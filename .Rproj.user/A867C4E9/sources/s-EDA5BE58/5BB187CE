@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1522010880980.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "5BB187CE",
+    "lastKnownWriteTime" : 1522010985,
+    "last_content_update" : 1522010985891,
+    "path" : "~/Desktop/visualization/R2_visualization.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "221,27",
+        "scrollLine" : "210"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

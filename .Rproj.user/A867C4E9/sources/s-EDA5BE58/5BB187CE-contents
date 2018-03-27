@@ -1,0 +1,234 @@
+#########################################################
+#   Visualization
+#########################################################
+
+rm(list=ls())
+# the data come from http://datacenter.kidscount.org/data#IN
+
+
+# load the maps package
+library(maps)
+
+
+
+# plot a map of the counties of north carolina (it's really easy!)
+# the "col = 0" argument tells map() not to fill in the counties with a color
+# we will change that later when we plot the child poverty data
+map('county','indiana')
+
+# black outline with gray interior
+map('county','indiana',interior=FALSE)
+map('county','indiana',boundary=FALSE,col='gray',add=TRUE)
+
+# or with a thicker exterior line
+map('county','indiana', interior = FALSE, lwd = 3 )
+map('county','indiana',boundary=FALSE,col='gray',add=TRUE)
+
+m = map('county','indiana', interior = FALSE, lwd = 3 )
+text(-86.1,41.4,'Home',cex=2)
+
+
+# try manipulating this line to plot counties of multiple states
+map('county',c('illinois','indiana'),fill=T, col = 'magenta')
+map('county',c('illinois','indiana'),
+    fill=T, col = c('magenta','white') )
+
+m = map('county','indiana',plot=FALSE)
+map('county','indiana',bg = 'gray')
+map('county','indiana',lty=2)
+
+# you can do the same thing for states  
+map('state')
+map.text('state',cex=0.5)
+
+# for map projections, see
+# https://cran.r-project.org/web/packages/mapproj/mapproj.pdf
+map('state',projection="mollweide")
+map('state',projection="lambert",parameters=c(0,49))
+map('state',projection="albers",parameters=c(23,49))
+
+
+
+## plotting a chloropleth map: the Columbus OH data example
+# 49 neighbourhoods in Columbus, OH, 1980 data
+# more info at https://nowosad.github.io/spData/reference/columbus.html
+# CRIME: residential burglaries and vehicle thefts per thousand households in the neighborhood
+
+rm(list=ls())
+
+library(spdep)
+library(maps)
+# install.packages('maptools')
+library(maptools)
+# install.packages('classInt')
+library(classInt)
+library(RColorBrewer)
+
+
+columbus.poly=readShapePoly(system.file("etc/shapes/columbus.shp", package="spdep")[1])
+
+
+#Define Break Points
+brks =c(0,10,20,30,40,50,60,70)
+
+##Draw the maps using the maps function
+library(maps)
+library(classInt)
+
+color.palette = rev(brewer.pal(4,"RdBu"))
+class.raw = classIntervals(var=columbus.poly$CRIME, n=7, style="fixed", fixedBreaks=brks, dataPrecision=4)
+color.code.raw = findColours(class.raw, color.palette)
+
+leg.txt = c("<10", "10-20", "20-30", "30-40", "40-50", "50-60" ,">60")
+
+
+par(mfrow=c(1,1), oma = c(0,0,0,0) , mar = c(0,0,1,0) )
+plot(columbus.poly, col=color.code.raw)
+#title("Crime" )
+legend("topleft", legend=leg.txt, cex=1.25, bty="n", horiz = FALSE, fill = color.palette)
+
+
+
+
+# make a plot of the ozone data on a map
+# 8-hour average (surface) ozone ( from 9AM-5PM) 
+# measured in parts per billion (PPB) for 153 sites
+# in the midwestern US over the period June 3,1987 
+# through August 31, 1987, 89 days. 
+
+# We initially plot the first day of data (June 3)
+
+library(fields)
+data(ozone2)
+
+lon.lat = ozone2$lon.lat
+latlims = range(ozone2$lon.lat[,2]) + c(-1,1)
+lonlims = range(ozone2$lon.lat[,1]) + c(-1,1)
+map('state',xlim = lonlims,ylim=latlims)
+title("Ozone Data (parts per billion)")
+points(lon.lat[,1],lon.lat[,2],cex = sqrt(ozone2$y[1,])/4,col='red')
+# add a manual legend
+ozrange = range(ozone2$y[1,],na.rm=TRUE)
+ozlist = c(ozrange[1],mean(ozrange),ozrange[2])
+points(rep(-94,3),seq(39,40,length.out=3) ,col="black", cex = sqrt(ozlist)/4  )
+text(rep(-93,3),seq(39,40,length.out=3), round(ozlist,2),cex=0.8)
+
+
+
+# movie time!
+for(j in 1:89){
+  map('state',xlim = lonlims,ylim=latlims)
+  points(lon.lat[,1],lon.lat[,2],cex = sqrt(ozone2$y[j,])/4,col='red')
+  Sys.sleep(0.2)
+}
+
+
+
+
+# There are also functions for plotting world maps
+# see the online documentation for the "maps" package to learn more
+map('world')
+map('france')
+
+rm(list = ls())
+
+# ggmap
+library(ggmap)
+
+# aside from mapping, ggpmap has some useful functions
+geocode("1251 N Eddy St, South Bend, IN")
+geocode("Hurley Hall, University of Notre Dame")
+
+geocode("University of Notre Dame")
+geocode("Notre Dame Stadium", output = "more")
+names(geocode("Notre Dame Stadium", output = "more"))
+geocode("Notre Dame Stadium", output = "all")
+
+from = c("Notre Dame Stadium")
+to = c("sbn airport")
+mapdist(from,to)
+
+
+
+# Where are we?
+map <- get_map("Notre Dame Stadium", zoom = 15)
+ggmap(map)
+extent <- bb2bbox(attr(map, "bb"))
+
+
+
+# has different map types
+ggmap(get_stamenmap(extent, zoom = 15, maptype = "toner-background"))
+ggmap(get_stamenmap(extent, zoom = 15, maptype = "watercolor"))
+
+
+# retrieving crime data
+downtown <- subset(crime,
+                   -95.39681 <= lon & lon <= -95.34188 &
+                     29.73631 <= lat & lat <=  29.78400 &
+                     offense == "murder"
+)
+head(downtown)
+
+
+# qmplot combines downloading the tiles and plotting on the map
+qmplot(lon, lat, data = downtown, source = "google", maptype = "terrain", color = I("red"))
+
+
+
+library(fields)
+data(ozone2)
+
+# plotting the previous dataset and overlaying 
+ozone3 = data.frame( lon = ozone2$lon.lat[,1], lat = ozone2$lon.lat[,2], y = ozone2$y[1,] ) 
+latrange = range(ozone3$lat) + c(-1,1)
+lonrange = range(ozone3$lon) + c(-1,1)
+extent = c(lonrange[1],latrange[1],lonrange[2],latrange[2])
+m = get_map(extent)
+ggmap(m) + geom_point(aes(x=lon,y=lat,size=sqrt(y)) , data = ozone3 )
+
+ggmap(m)+geom_point(aes(x=lon,y=lat,size=(y)) , data = ozone3, alpha = 0.2 )
+
+
+# make a map of national parks
+# from http://www.r-bloggers.com/shapefiles-in-r/
+library(maptools)
+
+this.dir = dirname(rstudioapi::getActiveDocumentContext()$path)
+setwd(this.dir)
+area <- readShapePoly("shapefiles_national_parks/ne_10m_parks_and_protected_lands_area.shp")
+library(RColorBrewer)
+colors <- brewer.pal(9, "BuGn")
+
+
+
+mapImage <- get_map(location = c(lon = -113, lat = 40),
+                    color = "color",
+                    source = "google",
+                     # maptype = "terrain",
+                    zoom = 5)
+
+area.points <- fortify(area)
+ggmap(mapImage) + geom_polygon(aes(x = long, y = lat, group = group),
+                               data = area.points,
+                               color = colors[9],
+                               fill = colors[1],
+                               alpha = 0.5) +
+  labs(x = "Longitude",
+       y = "Latitude")
+
+
+# take a crack at this ourselves for mapping congressional districts
+shapefile = readShapePoly("cb_2014_us_cd114_500k/cb_2014_us_cd114_500k.shp")
+congdist = fortify(shapefile)
+inmap = get_map("indiana", zoom = 6, maptype="terrain")
+ggmap(inmap) + 
+  geom_polygon(aes(x = long, y = lat, group = group), data = congdist, color = "black", fill = "red", alpha = .1, size = 1)
+
+
+# Create a shareable link to your chart
+# Set up API credentials: https://plot.ly/r/getting-started
+chart_link = plotly_POST(p, filename="choropleth/ag")
+chart_link
+
+
