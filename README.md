@@ -6,6 +6,10 @@ This exercise is to familiarize yourself with the ggmap library.
 2. Plot a map with ggmap
 3. Compute the distance between the zoo and O’Hare airport, and report the time required to cover that distance driving, bicycling and walking. You will notice that, depending on the mode of transport, you will have different distances. Why is it the case? Also, how are the estimated times computed?
 
+```
+The first task is completed in 'script.R'
+```
+
 ### Task 2
 As part of the homework, I have uploaded in sakai the measurements of precipitation
 for February 2018 in mm, as reported in the NOAA National Centers for Environmental
@@ -14,3 +18,7 @@ consider only the midwest.
 1. Do a bubble plot of the data, comment on any trend that you see, as well as any particular feature of interest in the map.
 2. Do some exploratory analysis to check if the precipitation changing across longitude or latitude. If you see some trend, try to give a physical interpretation of it.
 3. Compute the classical and rubust variogram, comment on the general behavior of it.
+
+```
+The second task is completed in 'script2.R'
+```
